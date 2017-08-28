@@ -38,7 +38,6 @@ PHPoC source codes for basic libraries and examples
 ### p4s
 #### 1. php_task
 * hello
-* uart_hello
 * uio_buzzer
 * uio_ob_led
 * uio_touch_sensor
@@ -46,6 +45,11 @@ PHPoC source codes for basic libraries and examples
 * adc_rotary_angle
 * ht_pwm_servo
 * ht_ultrasonic
+* uart_hello
+* pes_2401_blink_output (*added*)
+* pes_2402_get_input (*added*)
+* pes_2405_move_fast (*added*)
+* pes_2405_move_slow (*added*)
 
 #### 2. html_text
 * hello
@@ -66,6 +70,7 @@ PHPoC source codes for basic libraries and examples
 * adc_rotary_angle
 * ht_pwm_servo
 * ht_ultrasonic
+* pes_2401_push_output (*added*)
 
 #### 4. html5_text
 * hello
@@ -81,6 +86,8 @@ PHPoC source codes for basic libraries and examples
 * adc_light_sensor
 * adc_rotary_angle
 * ht_pwm_servo
+* pes_2404_pos_rpm (*added*)
+* pes_2405_touch_rotate (*added*)
 
 ### pbh
 #### 1. php_task
