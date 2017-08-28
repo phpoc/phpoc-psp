@@ -11,10 +11,14 @@ PHPoC source codes for basic libraries and examples
 * sd_spc.php
 * sn_dns.php
 * sn_esmtp.php
+* sn_http_b1.php (*BETA*)
+* sn_json_b1.php (*BETA*)
 * sn_mysql.php
 * sn_smtp.php
+* sn_sntp_b1.php (*BETA*)
 * sn_tcp_ac.php
 * sn_tcp_ws.php
+* sn_thingspeak_b1.php (*BETA*)
 
 ## Examples
 ### net

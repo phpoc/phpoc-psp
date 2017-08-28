@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sn_dns.php date 20160420
+// $psp_id sn_dns.php date 20170629
 
 define("RR_A",     1); // Address record
 define("RR_NS",    2); // Name Server record
@@ -9,13 +9,20 @@ define("RR_SOA",   6); // Start Of Authority record
 define("RR_MX",   15); // Mail eXchange record
 define("RR_AAAA", 28); // IPv6 Address record
 
+define("DNS_CACHE_TIMEOUT", 30);
+
+$sn_dns_id = 0;
 $sn_dns_pid = 0;
 $sn_dns_tid = 0;
 $sn_dns_ip6 = false;
 $sn_dns_server = "";
+$sn_dns_cache_host = "";
+$sn_dns_cache_type = 0;
+$sn_dns_cache_addr = "";
+$sn_dns_query_name = "";
 $sn_dns_query_type = 0;
-$sn_dns_timeout_update = 0;
 $sn_dns_timeout_query = 0;
+$sn_dns_timeout_cache = 0;
 
 function sn_dns_get_tick()
 {
@@ -29,6 +36,43 @@ function sn_dns_get_tick()
 	pid_close($pid);
 
 	return $tick;
+}
+
+function sn_dns_cleanup()
+{
+	global $sn_dns_timeout_query;
+	global $sn_dns_pid;
+
+	pid_close($sn_dns_pid);
+
+	$sn_dns_pid = 0;
+	$sn_dns_timeout_query = 0;
+}
+
+function sn_dns_update_cache($name, $type, $addr)
+{
+	global $sn_dns_cache_host, $sn_dns_cache_type, $sn_dns_cache_addr;
+	global $sn_dns_timeout_cache;
+
+	$sn_dns_cache_host = $name;
+	$sn_dns_cache_type = $type;
+	$sn_dns_cache_addr = $addr;
+
+	$sn_dns_timeout_cache = sn_dns_get_tick() + DNS_CACHE_TIMEOUT * 1000;
+}
+
+function sn_dns_find_cache($name, $type)
+{
+	global $sn_dns_cache_host, $sn_dns_cache_type, $sn_dns_cache_addr;
+	global $sn_dns_timeout_cache;
+
+	if(sn_dns_get_tick() >= $sn_dns_timeout_cache)
+		return "";
+
+	if(($name == $sn_dns_cache_host) && ($type == $sn_dns_cache_type))
+		return $sn_dns_cache_addr;
+	else
+		return "";
 }
 
 function sn_dns_encode_name($name)
@@ -110,9 +154,10 @@ function sn_dns_skip_name(&$name)
 
 function dns_setup($udp_id, $server_addr = "", $ip6 = false)
 {
-	global $sn_dns_pid, $sn_dns_tid;
+	global $sn_dns_id, $sn_dns_tid;
 	global $sn_dns_ip6, $sn_dns_server;
 
+	$sn_dns_id = $udp_id;
 	$sn_dns_ip6 = $ip6;
 
 	if($server_addr && ($server_addr != "0.0.0.0") && ($server_addr != "::0"))
@@ -120,28 +165,27 @@ function dns_setup($udp_id, $server_addr = "", $ip6 = false)
 	else
 		$sn_dns_server = "";
 
-	if(!$sn_dns_pid)
-	{
-		$sn_dns_pid = pid_open("/mmap/udp$udp_id");
+	if(!$sn_dns_tid)
 		$sn_dns_tid = rand(0, 65536);
-
-		pid_ioctl($sn_dns_pid, "set dstport 53");
-	}
-
-	if($sn_dns_server)
-		pid_ioctl($sn_dns_pid, "set dstaddr $sn_dns_server");
 }
 
-function sn_dns_check_update_dstaddr()
+function sn_dns_setup_pid()
 {
-	global $sn_dns_pid, $sn_dns_ip6, $sn_dns_server;
-	global $sn_dns_timeout_update;
+	global $sn_dns_id, $sn_dns_pid;
+	global $sn_dns_ip6, $sn_dns_server;
+
+	if($sn_dns_pid)
+		pid_close($sn_dns_pid);
+
+	$sn_dns_pid = pid_open("/mmap/udp$sn_dns_id");
+
+	pid_ioctl($sn_dns_pid, "set dstport 53");
 
 	if($sn_dns_server)
+	{
+		pid_ioctl($sn_dns_pid, "set dstaddr $sn_dns_server");
 		return true;
-
-	if($sn_dns_timeout_update > sn_dns_get_tick())
-		return true;
+	}
 
 	if((int)ini_get("init_net0"))
 		$pid_net = pid_open("/mmap/net0");
@@ -157,11 +201,7 @@ function sn_dns_check_update_dstaddr()
 		if($nsaddr6 == "::0")
 			return false;
 
-		if($nsaddr6 != pid_ioctl($sn_dns_pid, "get dstaddr"))
-		{
-			echo "sn_dns: new server address $nsaddr6\r\n";
-			pid_ioctl($sn_dns_pid, "set dstaddr $nsaddr6");
-		}
+		pid_ioctl($sn_dns_pid, "set dstaddr $nsaddr6");
 	}
 	else
 	{
@@ -172,32 +212,28 @@ function sn_dns_check_update_dstaddr()
 		if($nsaddr == "0.0.0.0")
 			return false;
 
-		if($nsaddr != pid_ioctl($sn_dns_pid, "get dstaddr"))
-		{
-			echo "sn_dns: new server address $nsaddr\r\n";
-			pid_ioctl($sn_dns_pid, "set dstaddr $nsaddr");
-		}
+		pid_ioctl($sn_dns_pid, "set dstaddr $nsaddr");
 	}
-
-	$sn_dns_timeout_update = sn_dns_get_tick() + 30000;
 
 	return true;
 }
 
 function dns_send_query($name, $type, $timeout = 2000)
 {
-	global $sn_dns_query_type, $sn_dns_timeout_query;
 	global $sn_dns_pid, $sn_dns_tid;
+	global $sn_dns_query_name, $sn_dns_query_type;
+	global $sn_dns_timeout_query;
 
-	if(!$sn_dns_pid)
+	if(!$sn_dns_tid)
 		dns_setup(0, "");
 
-	if(!sn_dns_check_update_dstaddr())
+	if(!sn_dns_setup_pid())
 	{
 		echo "sn_dns: destination unreachable\r\n";
 		return 0;
 	}
 
+	$sn_dns_query_name = $name;
 	$sn_dns_query_type = $type;
 
 	$sn_dns_tid++;
@@ -223,32 +259,12 @@ function dns_send_query($name, $type, $timeout = 2000)
 	return strlen($query);
 }
 
-function dns_loop()
+function sn_dns_find_answer(&$response)
 {
-	global $sn_dns_query_type, $sn_dns_timeout_query;
-	global $sn_dns_pid, $sn_dns_tid;
+	global $sn_dns_query_type;
 
-	if(!$sn_dns_timeout_query) // query not sent or timed out
-		return "";
-
-	if(sn_dns_get_tick() >= $sn_dns_timeout_query)
-	{
-		echo "sn_dns: lookup timeout\r\n";
-		$sn_dns_timeout_query = 0;
-		return "";
-	}
-
-	if(!pid_ioctl($sn_dns_pid, "get rxlen"))
-		return false;
-
-	$sn_dns_timeout_query = 0;
-
-	$rbuf = "";
-
-	pid_recvfrom($sn_dns_pid, $rbuf);
-
-	$questions = bin2int($rbuf, 4, 2, true);
-	$answers = bin2int($rbuf, 6, 2, true);
+	$questions = bin2int($response, 4, 2, true);
+	$answers = bin2int($response, 6, 2, true);
 
 	if(!$answers)
 	{
@@ -256,7 +272,7 @@ function dns_loop()
 		return "";
 	}
 
-	$pbuf = substr($rbuf, 12); // skip dns header
+	$pbuf = substr($response, 12); // skip dns header
 
 	for($i = 0; $i < $questions; $i++)
 	{
@@ -282,11 +298,11 @@ function dns_loop()
 					return inet_ntop(substr($pbuf, 0, 4));
 
 				case RR_NS:
-					return sn_dns_decode_name($pbuf, $rbuf);
+					return sn_dns_decode_name($pbuf, $response);
 
 				case RR_MX:
 					$pbuf = substr($pbuf, 2); // skip PREFERENCE
-					return sn_dns_decode_name($pbuf, $rbuf);
+					return sn_dns_decode_name($pbuf, $response);
 
 				case RR_AAAA:
 					return inet_ntop(substr($pbuf, 0, 16));
@@ -300,10 +316,45 @@ function dns_loop()
 	return "";
 }
 
+function dns_loop()
+{
+	global $sn_dns_pid;
+	global $sn_dns_query_name, $sn_dns_query_type;
+	global $sn_dns_timeout_query;
+
+	if(!$sn_dns_timeout_query) // query not sent or timed out
+		return "";
+
+	if(sn_dns_get_tick() >= $sn_dns_timeout_query)
+	{
+		echo "sn_dns: lookup timeout\r\n";
+		sn_dns_cleanup(); // close pid & reset $sn_dns_timeout_query
+		return "";
+	}
+
+	if(!pid_ioctl($sn_dns_pid, "get rxlen"))
+		return false;
+
+	$rbuf = "";
+
+	pid_recvfrom($sn_dns_pid, $rbuf);
+
+	sn_dns_cleanup(); // close pid & reset $sn_dns_timeout_query
+
+	$addr = sn_dns_find_answer($rbuf);
+
+	if($addr)
+		sn_dns_update_cache($sn_dns_query_name, $sn_dns_query_type, $addr);
+
+	return $addr;
+}
+
 function dns_lookup($name, $type, $timeout = 2000)
 {
-	if(!dns_send_query($name, $type, $timeout))
-		return $name;
+	if($addr = sn_dns_find_cache($name, $type))
+		return $addr;
+
+	dns_send_query($name, $type, $timeout);
 
 	while(1)
 	{
