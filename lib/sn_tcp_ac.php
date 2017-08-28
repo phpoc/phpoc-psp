@@ -19,7 +19,10 @@ function sn_tcp_ac_start($tcp_id)
 	if($sn_tcp_ac_addr[$tcp_id] == "")
 		pid_listen($pid);
 	else
+	{
+		pid_bind($pid, "", 0);
 		pid_connect($pid, $sn_tcp_ac_addr[$tcp_id], $sn_tcp_ac_port[$tcp_id]);
+	}
 }
 
 function tcp_client($tcp_id, $addr, $port)

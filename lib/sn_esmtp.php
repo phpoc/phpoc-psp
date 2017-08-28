@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sn_esmtp.php date 20160415
+// $psp_id sn_esmtp.php date 20170214
 
 define("ESMTP_STATE_IDLE",        0);
 define("ESMTP_STATE_RR_MX",       1);
@@ -93,6 +93,9 @@ function sn_esmtp_update_auth($msg_250_auth)
 {
 	global $sn_esmtp_auth_id, $sn_esmtp_auth_pwd;
 
+	if(strpos($msg_250_auth, "LOGIN") !== false)
+		return "AUTH LOGIN\r\n";
+	else
 	if(strpos($msg_250_auth, "PLAIN") !== false)
 	{
 		$auth_plain  = $sn_esmtp_auth_id;
@@ -107,9 +110,6 @@ function sn_esmtp_update_auth($msg_250_auth)
 
 		return $auth_cmd;
 	}
-	else
-	if(strpos($msg_250_auth, "LOGIN") !== false)
-		return "AUTH LOGIN\r\n";
 	else
 		return "";
 }

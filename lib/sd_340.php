@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sd_340.php date 20160519
+// $psp_id sd_340.php date 20170214
 // P4S-340/342 basic library
 
 define("LOW",    0);
@@ -225,6 +225,9 @@ function uart_setup($uart_id, $baud, $set = "N81N")
 			break;
 		case "S": /* S/W flow control */
 			$flowctrl = 2;
+			break;
+		case "T": /* TxDE flow control */
+			$flowctrl = 3;
 			break;
 		default:
 			exit("uart_setup: invalid flow control $flowctrl\r\n");
