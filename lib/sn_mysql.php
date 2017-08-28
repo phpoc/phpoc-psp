@@ -1,6 +1,8 @@
 <?php
 
-// $psp_id sn_mysql.php date 20170216
+// $psp_id sn_mysql.php date 20170601
+
+include_once "/lib/sn_dns.php";
 
 define("MYSQL_STATE_IDLE",        0);
 define("MYSQL_STATE_RR",          1);

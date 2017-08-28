@@ -8,7 +8,7 @@ PHPoC source codes for basic libraries and examples
 * sd_104.php
 * sd_204.php
 * sd_340.php
-* sd_spc.php (*NEW*)
+* sd_spc.php
 * sn_dns.php
 * sn_esmtp.php
 * sn_mysql.php

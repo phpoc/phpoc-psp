@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sd_340.php date 20170214
+// $psp_id sd_340.php date 20170314
 // P4S-340/342 basic library
 
 define("LOW",    0);
@@ -496,13 +496,13 @@ function i2c_setup($i2c_id, $saddr, $mode = "sm")
 function i2c_scan($i2c_id, $rw_bit = 1, $len = 0)
 {
 	if($i2c_id != 0)
-		exit("i2c_setup: i2c_id out of range $i2c_id\r\n");
+		exit("i2c_scan: i2c_id out of range $i2c_id\r\n");
 
-	$pid = pid_open_nodie("/mmap/i2c$i2c_id", "i2c_setup");
+	$pid = pid_open_nodie("/mmap/i2c$i2c_id", "i2c_scan");
 
 	pid_ioctl($pid, "req reset");
 
-	echo "i2c_scan found : ";
+	echo "i2c_scan: ";
 
 	$found = 0;
 

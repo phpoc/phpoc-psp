@@ -1,6 +1,8 @@
 <?php
 
-// $psp_id sn_smtp.php date 20160415
+// $psp_id sn_smtp.php date 20170329
+
+include_once "/lib/sn_dns.php";
 
 define("SMTP_STATE_IDLE",     0);
 define("SMTP_STATE_RR_MX",    1);

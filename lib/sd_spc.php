@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sd_spc.php date 20170216
+// $psp_id sd_spc.php date 20170421
 
 function sd_spc_pid_open_nodie($name, $from)
 {
@@ -111,7 +111,7 @@ function spc_scan($start = 1, $end = 14, $verbose = false)
 			if(pid_ioctl($pid, "get error sto"))
 				continue; // slave timeout
 
-			printf("sid%02d : ", $sid);
+			printf("sid%02d: ", $sid);
 
 			if(pid_ioctl($pid, "get error mbit"))
 				echo "Mbit error ";
@@ -163,20 +163,20 @@ function spc_scan($start = 1, $end = 14, $verbose = false)
 					$resp = explode(",", $rbuf);
 
 					if($verbose)
-						printf("sid%02d : %s %12x\r\n", $sid, $resp[2], bin2int($uid_bin, 5, 6, true));
+						printf("sid%02d: %s %12x\r\n", $sid, $resp[2], bin2int($uid_bin, 5, 6, true));
 
 					$found++;
 				}
 				else
 				{
 					if($verbose)
-						printf("sid%02d : invalid uid\r\n", $sid);
+						printf("sid%02d: invalid uid\r\n", $sid);
 				}
 			}
 			else
 			{
 				if($verbose)
-					printf("sid%02d : invalid 'get uid' response\r\n", $sid);
+					printf("sid%02d: invalid 'get uid' response\r\n", $sid);
 			}
 		}
 	}
@@ -211,7 +211,7 @@ function spc_request($sid, $addr, $msg, $opt = "")
 
 	if(pid_ioctl($pid, "get error"))
 	{
-		echo "spc_request : $msg - $sid/$addr ";
+		echo "spc_request: $msg - $sid/$addr ";
 
 		if(pid_ioctl($pid, "get error sto"))
 			echo "slave timeout ";
@@ -254,6 +254,46 @@ function spc_request_csv($sid, $addr, $msg)
 		return explode(",", $resp);
 	else
 		return false;
+}
+
+function spc_request_sys($sid, $cmd)
+{
+	$resp = spc_request($sid, 0, $cmd);
+
+	if($resp)
+	{
+		$resp = explode(",", $resp);
+
+		if((int)$resp[0] != 200)
+			echo "spc_request_sys: '$cmd' request error ", $resp[0], "\r\n";
+
+		if(count($resp) > 1)
+			return $resp[1];
+		else
+			return "";
+	}
+	else
+		return "";
+}
+
+function spc_request_dev($sid, $cmd)
+{
+	$resp = spc_request($sid, 4, $cmd);
+
+	if($resp)
+	{
+		$resp = explode(",", $resp);
+
+		if((int)$resp[0] != 200)
+			echo "spc_request_dev: '$cmd' request error ", $resp[0], "\r\n";
+
+		if(count($resp) > 1)
+			return $resp[1];
+		else
+			return "";
+	}
+	else
+		return "";
 }
 
 ?>

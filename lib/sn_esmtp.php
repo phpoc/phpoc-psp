@@ -1,6 +1,8 @@
 <?php
 
-// $psp_id sn_esmtp.php date 20170214
+// $psp_id sn_esmtp.php date 20170329
+
+include_once "/lib/sn_dns.php";
 
 define("ESMTP_STATE_IDLE",        0);
 define("ESMTP_STATE_RR_MX",       1);
