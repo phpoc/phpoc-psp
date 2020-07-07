@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sn_esmtp.php date 20170329
+// $psp_id sn_esmtp.php date 20191014
 
 include_once "/lib/sn_dns.php";
 
@@ -238,6 +238,7 @@ function sn_esmtp_loop_rr()
 		if($sn_esmtp_msa_name == "")
 		{
 			echo "sn_esmtp: connect to $rr:25...";
+			pid_bind($sn_esmtp_tcp_pid, "", 0);
 			pid_connect($sn_esmtp_tcp_pid, $rr, 25);
 		}
 		else
@@ -246,11 +247,12 @@ function sn_esmtp_loop_rr()
 			{
 				echo "sn_esmtp: connect to $rr:smtps...";
 				pid_ioctl($sn_esmtp_tcp_pid, "set api ssl");
-				pid_ioctl($sn_esmtp_tcp_pid, "set ssl method tls1_client");
+				pid_ioctl($sn_esmtp_tcp_pid, "set ssl method client");
 			}
 			else
 				echo "sn_esmtp: connect to $rr:$sn_esmtp_msa_port...";
 
+			pid_bind($sn_esmtp_tcp_pid, "", 0);
 			pid_connect($sn_esmtp_tcp_pid, $rr, $sn_esmtp_msa_port);
 		}
 
@@ -321,7 +323,7 @@ function sn_esmtp_loop_ehlo(&$rbuf)
 			if(substr($rbuf, 0, 3) == "220")
 			{
 				pid_ioctl($sn_esmtp_tcp_pid, "set api ssl");
-				pid_ioctl($sn_esmtp_tcp_pid, "set ssl method tls1_client");
+				pid_ioctl($sn_esmtp_tcp_pid, "set ssl method client");
 				$sn_esmtp_state = ESMTP_STATE_TLS;
 			}
 			break;

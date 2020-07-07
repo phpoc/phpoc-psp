@@ -52,7 +52,7 @@ if($net_opt_tsf == 2)
 	envs_set_net_opt($envs, NET_OPT_AUTO_NS, 1);
 }
 else
-{	// Ad-hoc or Infrastructure
+{	// Infrastructure
 	if($ip_type == 0)
 	{	// Static IP Address
 		envs_set_net_opt($envs, NET_OPT_DHCP, 0);

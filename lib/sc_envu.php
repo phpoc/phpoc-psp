@@ -1,5 +1,7 @@
 <?php
 
+// $psp_id sc_envu.php date 20191224
+
 define("ENVU_SIZE", 1520);
 
 $sc_envu_wkey = 0;
@@ -18,7 +20,7 @@ function envu_read($envu_name, $envu_size = 64, $envu_offset = 0)
 
 		$sc_envu_wkey = system("nvm wkey envu");
 
-		return rtrim($envu, "\x00"); // remove trailing 0x00
+		return rtrim($envu, "\xff\x00");  // remove trailing 0xff/0x00
 	}
 	else
 	{

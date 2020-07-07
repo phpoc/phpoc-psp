@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sd_340.php date 20170314
+// $psp_id sd_340.php date 20180518
 // P4S-340/342 basic library
 
 define("LOW",    0);
@@ -25,19 +25,26 @@ function pid_open_nodie($name, $from)
 
 function uio_check_args($uio_id, $pin, $from)
 {
-	if(($uio_id == 0) && ($pin >= 0) && ($pin <= 31))
+	if($uio_id == 0)
+	{
+		if(($pin < 0) || ($pin > 31))
+			exit("$from: pin number out of range $pin\r\n");
 		return;
-
-	if($uio_id != 0)
+	}
+	else
+	if($uio_id == 1)
+	{
+		if(($pin < 0) || ($pin > 11))
+			exit("$from: pin number out of range $pin\r\n");
+		return;
+	}
+	else
 		exit("$from: uio_id out of range $uio_id\r\n");
-
-	if(($pin < 0) || ($pin > 31))
-		exit("$from: pin number out of range $pin\r\n");
 }
 
 function uio_ioctl($uio_id, $cmd)
 {
-	if($uio_id != 0)
+	if(($uio_id < 0) || ($uio_id > 1))
 		exit("uio_ioctl: uio_id out of range $uio_id\r\n");
 
 	$pid = pid_open_nodie("/mmap/uio$uio_id", "uio_ioctl");
@@ -746,6 +753,12 @@ function st_pwm_setup($st_id, $pin, $width, $period, $div = "ms")
 
 	pid_close($pid);
 }
+
+/*
+function st_pwm_setup_uio1($st_id, $pin, $width, $period, $div = "ms")
+{
+}
+*/
 
 function st_pwm_width($st_id, $width, $period)
 {

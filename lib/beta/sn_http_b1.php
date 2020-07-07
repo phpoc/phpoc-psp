@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sn_http.php date 20170706
+// $psp_id sn_http.php date 20191016
 
 include_once "/lib/sn_dns.php";
 
@@ -177,7 +177,7 @@ function sn_http_connect($addr, $port)
 	if($sn_http_protocol == "https")
 	{
 		pid_ioctl($sn_http_tcp_pid, "set api ssl");
-		pid_ioctl($sn_http_tcp_pid, "set ssl method tls1_client");
+		pid_ioctl($sn_http_tcp_pid, "set ssl method client");
 	}
 
 	echo "sn_http: connect to $addr:$port...";

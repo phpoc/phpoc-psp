@@ -28,7 +28,10 @@ function echo_loop($port)
 
 	$len = pid_recv($tcp_pid, $rwbuf, $len);
 	if($len)
+	{
 		pid_send($tcp_pid, $rwbuf);
+		echo $rwbuf;
+	}
 }
 
 function echo_loop_rand_len($port)
@@ -61,7 +64,10 @@ function echo_loop_rand_len($port)
 
 	$len = pid_recv($tcp_pid, $rwbuf, $len);
 	if($len)
+	{
 		pid_send($tcp_pid, $rwbuf);
+		echo $rwbuf;
+	}
 }
 
 echo "PHPoC example : multi-port TCP echo\r\n";

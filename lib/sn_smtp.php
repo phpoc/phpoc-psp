@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sn_smtp.php date 20170329
+// $psp_id sn_smtp.php date 20191014
 
 include_once "/lib/sn_dns.php";
 
@@ -183,6 +183,7 @@ function sn_smtp_loop_rr()
 		$sn_smtp_tcp_pid = pid_open("/mmap/tcp$sn_smtp_tcp_id");
 
 		echo "sn_smtp: connect to $rr:25...";
+		pid_bind($sn_smtp_tcp_pid, "", 0);
 		pid_connect($sn_smtp_tcp_pid, $rr, 25);
 		$sn_smtp_state = SMTP_STATE_CONNECT;
 	}

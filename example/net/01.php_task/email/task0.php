@@ -18,8 +18,13 @@ $message = "This is PHPoC test email\r\nGood bye\r\n";
 $msg = smtp_send("to_id@to_domain.com", "to_name", $subject, $message);
 
 if($msg == "221")
-	echo "send email successful\r\n";
+	echo "Send email successful\r\n";
 else
-	echo "send email failed\r\n";
+{
+	echo "Send email failed: ";
+	echo "Some receiving mail servers may check the 'Reverse DNS Mismatch' as an indication of a possible spam source. ";
+	echo "If the hostname did not match the reverse lookup (PTR) for the IP Address, ";
+	echo "the server may move the email to the spam mailbox or reject it without notice\r\n";
+}
 
 ?>

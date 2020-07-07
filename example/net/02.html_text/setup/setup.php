@@ -96,9 +96,15 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 
 	function chkUI()
 	{
-		chkWlan();
 		chkIPGetType();	
+		
+		<?php  	
+		if(ini_get("init_net0") != "1")
+		{
+		?>
+		chkWlan();
 		chkHideKey();
+		<? } ?>
 	}
 	
 	function chkWlan()
@@ -111,7 +117,7 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 			
 			pbh_setup.tsf[0].disabled = "true";
 			pbh_setup.tsf[1].disabled = "true";
-			pbh_setup.tsf[2].disabled = "true";
+			
 			pbh_setup.channel.disabled = "true";
 			pbh_setup.ssid.disabled = "true";
 			pbh_setup.shared_key.disabled = "true";
@@ -121,7 +127,6 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 		{
 			pbh_setup.tsf[0].disabled = "";
 			pbh_setup.tsf[1].disabled = "";
-			pbh_setup.tsf[2].disabled = "";
 					
 			pbh_setup.ssid.disabled = "";
 			pbh_setup.shared_key.disabled = "";
@@ -134,7 +139,7 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 	function chkChannel() {
 		var pbh_setup = document.pbh_setup;		
 		
-		if(pbh_setup.tsf[1].checked) //infrastructure
+		if(pbh_setup.tsf[0].checked) //infrastructure
 		{	
 			pbh_setup.channel.disabled = "true";						
 			pbh_setup.channel.value = "0";	
@@ -156,12 +161,12 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 				pbh_setup.nsaddr.disabled = "";
 			}
 		} 
-		else if(pbh_setup.tsf[2].checked) 	//softap
+		else if(pbh_setup.tsf[1].checked) 	//softap
 		{
 			pbh_setup.channel.disabled = "";
 			pbh_setup.ip_type[1].checked = true;
 			pbh_setup.ip_type[0].disabled = "true";
-			//pbh_setup.ip_type[1].disabled = "true";
+			
 			chkIPGetType();
 		}
 		else 
@@ -252,7 +257,10 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 			pbh_setup.nsaddr.focus();
 			return;
 		}
-
+		<?php  	
+		if(ini_get("init_net0") != "1")
+		{
+		?>
 		if (pbh_setup.wlan_opt[0].checked)
 		{
 			//SSID check
@@ -264,7 +272,7 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 			}			
 			
 			//shared key check
-			if(pbh_setup.tsf[2].checked)
+			if(pbh_setup.tsf[1].checked)
 			{
 				if(pbh_setup.shared_key.value.length && (pbh_setup.shared_key.value.length < 8))
 				{
@@ -276,6 +284,9 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 
 		}
 		
+		<?php  	
+		}
+		?>
 		pbh_setup.submit();
 			 
 		var ipaddr = pbh_setup.ipaddr.value;
@@ -304,7 +315,7 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 			<div class="left">
 			</div>	
 			<div class="right">
-				<a href="http://www.sollae.co.kr" target="_blank">SOLLAE SYSTEMS</a>
+				<a href="https://www.eztcp.com" target="_blank">SOLLAE SYSTEMS</a>
 			</div>
 		</div>
 
@@ -366,7 +377,11 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 				</td>
 			</tr>
 		</table>
-
+		
+		<?php  	
+		if(ini_get("init_net0") != "1")
+		{
+		?>
 		<hr style="margin:50px 0 -10px 0; width:430px;" size="6" noshade>
 		<h1>Wireless LAN</h1>
 		<table>
@@ -380,7 +395,6 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 			<tr>
 				<td class="theader">WLAN mode</td>
 				<td>
-					<input type="radio" value="0" name="tsf" onclick="chkChannel();" <? if($wmode == 0) echo "checked" ?> /> Ad-hoc<br />
 					<input type="radio" value="1" name="tsf" onclick="chkChannel();" <? if($wmode == 1) echo "checked" ?> /> Infrastructure<br />
 					<input type="radio" value="2" name="tsf" onclick="chkChannel();" <? if($wmode == 2) echo "checked" ?> /> Soft AP
 				</td>
@@ -432,7 +446,10 @@ $shared_key		= substr($shared_key_env, 0, (int)$shared_key_pos);
 					</select>
 				</td>
 			</tr>
-		</table>	
+		</table>
+		<?php 
+		}
+		?>	
 	</center>	
 	</form>
 	<br /><br /><br /><br />

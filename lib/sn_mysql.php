@@ -1,6 +1,6 @@
 <?php
 
-// $psp_id sn_mysql.php date 20170601
+// $psp_id sn_mysql.php date 20180418
 
 include_once "/lib/sn_dns.php";
 
@@ -282,11 +282,20 @@ function sn_mysql_loop_con()
 		break;
 
 	case MYSQL_STATE_CON_FIN:
+
 		$rlen = bin2int($rbuf, 0, 3);           // $rbuf = server greeting
 		$rbuf = substr($rbuf, 4, $rlen);
-		$protocol = bin2int($rbuf, 0, 1);
+		$header = bin2int($rbuf, 0, 1);
+		//$protocol = bin2int($rbuf, 0, 1);
+		if($header == 0xff)
+		{
+			echo "sn_mysql[$sn_mysql_state]: Server Greeting Error\r\n";
+			mysql_close();
+			return -1;
+		}
+
 		$version_ref = strpos($rbuf, "\x00");
-		if($protocol != 10)
+		if($header != 10)
 		{
 			echo "sn_mysql[$sn_mysql_state]: unsupported protocol version\r\n";
 			mysql_close();

@@ -5,19 +5,22 @@ if(_SERVER("REQUEST_METHOD"))
 
 include_once "/lib/sn_dns.php";
 
-echo "PHPoC example : get web page from www server\r\n";
+echo "PHPoC example : get web page from http server\r\n";
 
-$host_name = "www.google.com";
+$host_name = "example.phpoc.com";
+$host_port = 80;
+
 $host_addr = dns_lookup($host_name, RR_A);
 
 if($host_addr == $host_name)
 	exit "$host_name : Not Found\r\n";
 
 $tcp0_pid = pid_open("/mmap/tcp0");
+pid_bind($tcp0_pid, "", 0);
 
-echo "connect to $host_addr:80...";
+echo "connect to $host_addr:$host_port...";
 
-pid_connect($tcp0_pid, $host_addr, 80);
+pid_connect($tcp0_pid, $host_addr, $host_port);
 
 for(;;)
 {
@@ -35,6 +38,9 @@ for(;;)
 
 echo "connected\r\n";
 
+//$http_req  = "GET /request_method/ HTTP/1.1\r\n";
+//$http_req  = "GET /request_header/ HTTP/1.1\r\n";
+//$http_req  = "GET /asciilogo.txt HTTP/1.1\r\n";
 $http_req  = "GET / HTTP/1.1\r\n";
 $http_req .= "Host: $host_name\r\n";
 $http_req .= "Connection: closed\r\n";
@@ -56,7 +62,7 @@ for(;;)
 		break;
 }
 
-echo "connection closed\r\n";
+echo "\r\nconnection closed\r\n";
 
 pid_close($tcp0_pid);
 

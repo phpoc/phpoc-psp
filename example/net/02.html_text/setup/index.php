@@ -87,7 +87,7 @@ pid_close($pid_net1);
 			<div class="left">
 			</div>	
 			<div class="right">
-				<a href="http://www.sollae.co.kr" target="_blank">SOLLAE SYSTEMS</a> 
+				<a href="https://www.eztcp.com" target="_blank">SOLLAE SYSTEMS</a> 
 			</div>
 		</div>
 
@@ -163,7 +163,7 @@ pid_close($pid_net1);
 		</table>
 		
 		<?php  	
-		if ($wmode != "")
+		if(ini_get("init_net0") != "1")
 		{
 		?>
 		<hr style="margin:40px 0 -10px 0; width:430px;" size="6" noshade>
@@ -178,11 +178,11 @@ pid_close($pid_net1);
 						case "INFRA":
 							$wmode = "Infrastructure";
 							break;
-						case "IBSS":
-							$wmode = "Ad-hoc";
-							break;
 						case "AP":
 							$wmode = "Soft AP";
+							break;
+						case "IBSS":
+							$wmode = "Ad-hoc";
 							break;
 					}
 					

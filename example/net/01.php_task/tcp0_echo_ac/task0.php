@@ -15,7 +15,10 @@ while(1)
 {
 	$rwlen = tcp_read(0, $rwbuf, tcp_txfree(0));
 	if($rwlen > 0)
+	{
 		tcp_write(0, $rwbuf);
+		echo $rwbuf;
+	}
 }
 
 ?>
